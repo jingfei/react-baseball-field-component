@@ -6,18 +6,39 @@ export class Field extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isReRendered: false,
+      fielders: [],
+      runners: []
+    };
+
     this.handleDrag = this.handleDrag.bind(this);
     this.handleStartDrag = this.handleStartDrag.bind(this);
     this.handleEndDrag = this.handleEndDrag.bind(this);
-    this.init();
+    this.handleResize = this.handleResize.bind(this);
+    this.refCallback = this.refCallback.bind(this);
+    this.init = this.init.bind(this);
   }
 
-  componentDidMount() {
-    window.addEventListener("resize", this.init);
+  handleResize() {
+    this.setState({ isReRendered: false });
+  }
+
+  refCallback(element) {
+    if (element) {
+      this.elementRef = element;
+      if (!this.props.width && !this.props.height) {
+        var { width, height } = this.elementRef.getBoundingClientRect();
+        this.width = width; this.height = height;
+        window.addEventListener("resize", this.handleResize);
+      }
+      this.init();
+      this.setState({ isReRendered: true, fielders: this.consts.fielders, runners: this.consts.runners });
+    }
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.init);
+    window.removeEventListener("resize", this.handleResize);
   }
 
   static defaultProps = {
@@ -31,8 +52,8 @@ export class Field extends React.Component {
 
   static propTypes = {
     color: PropTypes.object,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired
+    width: PropTypes.number,
+    height: PropTypes.number
   };
 
   consts = {
@@ -47,7 +68,7 @@ export class Field extends React.Component {
       { x: 0, y: 0 },
       { x: 0, y: 0 }],
     runners: [
-      { isOnBase: false, x: 0, y: 0, isScoring: false },
+      { isOnBase: true, x: 0, y: 0, isScoring: false },
       { isOnBase: false, x: 0, y: 0, isScoring: false },
       { isOnBase: false, x: 0, y: 0, isScoring: false },
       { isOnBase: false, x: 0, y: 0, isScoring: false }],
@@ -71,8 +92,18 @@ export class Field extends React.Component {
   };
 
   init() {
-    this.consts.graphWidth = this.props.width; // this.element.nativeElement.getBoundingClientRect().width;
-    this.consts.graphHeight = this.props.height; // window.innerHeight - 50; // minus bottom menu
+    var width = this.props.width || this.width;
+    var height = this.props.height || this.height;
+    if (!width && !height) {
+      return;
+    } else if (!width) {
+      width = height;
+    } else if (!height) {
+      height = width;
+    }
+
+    this.consts.graphWidth = width;
+    this.consts.graphHeight = height;
     this.consts.edge = ( this.consts.graphWidth > this.consts.graphHeight ? this.consts.graphHeight : this.consts.graphWidth ) / 2.5;
     this.consts.pitcherR = this.consts.edge * .1875 * .5;
     this.consts.pitcherDis = this.consts.edge * .675;
@@ -123,12 +154,17 @@ export class Field extends React.Component {
       var { x: dragX, y: dragY } = this.getMousePosition(e);
       this.consts.fielders[this.dragTarget].x = dragX - this.dragOffset.x;
       this.consts.fielders[this.dragTarget].y = dragY - this.dragOffset.y;
+      this.setState({fielders: this.consts.fielders});
     }
   }
 
   handleStartDrag(e) { 
     var target = e.currentTarget;
-    this.dragTarget = parseInt(target.id.substring(8));
+    var idArray = target.id ? target.id.split('-') : [];
+    if (idArray.length !== 2) {
+      return;
+    }
+    this.dragTarget = parseInt(idArray[1]);
     this.dragOffset = this.getMousePosition(e);
     this.dragOffset.x -= this.consts.fielders[this.dragTarget].x;
     this.dragOffset.y -= this.consts.fielders[this.dragTarget].y;
@@ -142,8 +178,7 @@ export class Field extends React.Component {
   }
 
   getMousePosition(e) {
-    // FIXME
-    var CTM = document.querySelector('svg').getScreenCTM();
+    var CTM = this.elementRef.getScreenCTM();
     if (e.touches) {
       e = e.touches[0];
     }
@@ -154,14 +189,21 @@ export class Field extends React.Component {
   }
 
   render() {
+    if (!this.state.isReRendered) {
+      return <div 
+        style={{ width: '100%', height: '100%' }}
+        ref={this.refCallback} />;
+    }
     return (
-<svg style={{ width: '100%', height: '100%' }}
+<svg 
+  ref={this.refCallback}
+  style={{ width: '100%', height: '100%' }}
   onMouseMove={this.handleDrag}
+  onMouseUp={this.handleEndDrag}
+  onMouseLeave={this.handleEndDrag}
   onTouchMove={this.handleDrag}
-  onMouseUp={this.handlEndDrag}
   onTouchEnd={this.handleEndDrag}
-  onTouchCancel={this.handleEndDrag}
-  onMouseLeave={this.handleEndDrag} >
+  onTouchCancel={this.handleEndDrag} >
   <GrassField 
     grassColor={this.props.color.grass}
     width={this.consts.graphWidth}
@@ -202,10 +244,10 @@ export class Field extends React.Component {
     pitcherDis={this.consts.pitcherDis}
     pitcherR={this.consts.pitcherR} />
   <Runners
-    runners={this.consts.runners}
+    runners={this.state.runners}
     baseWidth={this.consts.baseWidth} />
   <Fielders
-    fielders={this.consts.fielders}
+    fielders={this.state.fielders}
     onStartDrag={this.handleStartDrag} />
 </svg>);
   }

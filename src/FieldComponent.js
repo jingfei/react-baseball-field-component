@@ -48,7 +48,7 @@ PitcherMound.propTypes = {
 export const Runners = (props) =>  {
   var runners = props.runners
     .filter(runner => runner.isOnBase)
-    .map(runner => <Runner baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'blue'} />);
+    .map((runner, i) => <Runner key={"runner-"+i} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} />);
   return <g>{runners}</g>;
 };
 Runners.propTypes = {
@@ -56,9 +56,13 @@ Runners.propTypes = {
   baseWidth: PropTypes.number.isRequired
 };
 
-const Runner = (props) => <rect width={props.baseWidth * 4} height={props.baseWidth * 4} />;
-Runner.defaultProps = { baseWidth: 20 };
-Runner.propTypes = { baseWidth: PropTypes.number };
+const Runner = (props) => <rect x={props.x} y={props.y} fill={props.fill} width={props.baseWidth * 4} height={props.baseWidth * 4} />;
+Runner.propTypes = { 
+  baseWidth: PropTypes.number,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  fill: PropTypes.string.isRequired,
+};
 
 export const Bases = (props) => {
   var squareBases = props.bases
@@ -126,6 +130,7 @@ Fielders.propTypes = {
 };
 
 const Fielder = (props) => (<g 
+      id={props.id}
       style={{cursor: 'pointer'}}
       onMouseDown={props.onStartDrag}
       onTouchStart={props.onStartDrag} >
@@ -133,6 +138,7 @@ const Fielder = (props) => (<g
     <text x={props.x + 5} y={props.y + 20} fill="white">{props.text}</text>
   </g>);
 Fielder.propTypes = {
+  id: PropTypes.string.isRequired,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,
   text: PropTypes.string.isRequired,
