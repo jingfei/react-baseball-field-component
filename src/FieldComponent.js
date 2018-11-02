@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export const GrassField = (props) => {
-  var height = props.centerY + props.sDiamondAway - props.edge * 3;
+  var height = props.centerY + props.sDiamondAway * 2 - props.edge * 3;
   var upperOutField = height > 0 ? <rect x="0" y="0" width={props.width} height={height} /> : '';
   return (<g style={{stroke: props.grassColor, fill: props.grassColor}}>
     {upperOutField}
     <path d={`M${props.centerX}, ${props.centerY + props.sDiamondAway * 2}
-  		 L${props.centerX - props.edge * 3}, ${props.centerY + props.sDiamondAway * 2 - props.edge * 3}
-  		 L${props.centerX + props.edge * 3}, ${props.centerY + props.sDiamondAway * 2 - props.edge*3} Z`} />
+  		 L${props.centerX - props.edge * 3}, ${height}
+  		 L${props.centerX + props.edge * 3}, ${height} Z`} />
   </g>);
 };
 GrassField.propTypes = {
@@ -47,11 +47,18 @@ PitcherMound.propTypes = {
 
 export const Runners = (props) =>  {
   var runners = props.runners
-    .filter(runner => runner.isOnBase)
+    .filter((runner, i) => runner.isOnBase 
+        && (i ? props.isShowRunners : props.isShowBatter))
     .map((runner, i) => <Runner key={"runner-"+i} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} />);
   return <g>{runners}</g>;
 };
+Runners.defaultProps = { 
+  isShowRunners: true,
+  isShowBatter: true
+};
 Runners.propTypes = {
+  isShowRunners: PropTypes.bool,
+  isShowBatter: PropTypes.bool,
   runners: PropTypes.array.isRequired,
   baseWidth: PropTypes.number.isRequired
 };
@@ -117,10 +124,10 @@ Lines.propTypes = {
 
 export const Fielders = (props) => {
   var fielders = props.fielders
-    .filter((fielder, i) => i)
-    .map((fielder, i) => <Fielder 
-        key={"fielder-" + (i+1)} id={"fielder-" + (i+1)}
-        x={fielder.x} y={fielder.y} text={(i+1).toString()} 
+    .filter(fielder => fielder.pos)
+    .map(fielder => <Fielder 
+        key={"fielder-" + fielder.pos} id={"fielder-" + fielder.pos}
+        x={fielder.x} y={fielder.y} text={fielder.pos.toString()} 
         onStartDrag={props.onStartDrag} />);
   return <g>{fielders}</g>;
 };
