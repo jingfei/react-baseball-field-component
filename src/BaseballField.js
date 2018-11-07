@@ -13,8 +13,15 @@ export class BaseballField extends React.Component {
     isShowFielders: PropTypes.bool,
     isShowRunners: PropTypes.bool,
     isShowBatter: PropTypes.bool,
+    /* runners: type size 4 array object 
+     * each object stands for each base from home to third
+     * object is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
+    runners: PropTypes.array,
     width: PropTypes.number,
-    height: PropTypes.number
+    height: PropTypes.number,
+    // TODO: haven't started implement
+    /* onFielderMove: callback function after fielder dragged */
+    onFieldersMove: PropTypes.func
   };
 
   constructor(props) {
@@ -105,7 +112,6 @@ export class BaseballField extends React.Component {
     window.removeEventListener("resize", this.handleResize);
   }
 
-
   render() {
     if (!this.state.isReRendered) {
       return <div 
@@ -124,13 +130,12 @@ export class BaseballField extends React.Component {
         <Field 
           ref={this.setFieldRef}
           onStartDrag={this.handleStartDrag}
-          fielderUpdate={this.state.fielderUpdate}
           isShowFielders={this.props.isShowFielders}
-          runnerUpdate={this.state.runnerUpdate}
+          fielderUpdate={this.state.fielderUpdate}
+          runnersUpdate={this.props.runners}
           width={this.width}
           height={this.height} />
       </svg>);
     }
   }
 }
-

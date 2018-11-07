@@ -18,7 +18,7 @@ export class Field extends React.Component {
   static propTypes = {
     color: PropTypes.object,
     fielderUpdate: PropTypes.object,
-    runners: PropTypes.array,
+    runnersUpdate: PropTypes.array,
     onStartDrag: PropTypes.func.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
@@ -31,10 +31,17 @@ export class Field extends React.Component {
     super(props);
     this.init();
 
-    this.state = { fielders: this.getInitFielders };
+    this.state = { 
+      fielders: this.getInitFielders,
+      runners: this.getRunnersXY,
+      hasRun: false
+    };
   }
 
   static getDerivedStateFromProps(props, state) {
+    if (props.runnersUpdate && !state.hasRun) {
+      props.runnersUpdate.forEach(runner => state.runners[runner.pos].isOnBase = true);
+    }
     if (props.fielderUpdate) {
       var update = props.fielderUpdate;
       if (update.x && update.y && update.pos) {
@@ -43,6 +50,17 @@ export class Field extends React.Component {
       }
     }
     return state;
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.runnersUpdate) {
+      var runningRunners = this.props.runnersUpdate.filter(runner => runner.runto);
+      if (runningRunners.length && !this.state.hasRun) {
+        var locs = [-1, -1, -1, -1];
+        runningRunners.forEach(runner => locs[runner.pos] = runner.runto ? runner.runto : runner.pos);
+        this.run(locs);
+      }
+    }
   }
 
   consts = {
@@ -113,6 +131,59 @@ export class Field extends React.Component {
     return fielders;
   }
 
+  run(locs) {
+    this.setState({ hasRun: true });
+    // TODO: adjust speed based on screen size
+    var speed = 10;
+    var runners = this.state.runners;
+    var goList = [];
+    for (var base: number = 3; base >= 0; --base) {
+      if (locs[base] > base) {
+        goList.push({ from: base, to: (base + 1) % 4 });
+
+        if (base + 1 < 4) {
+          locs[base + 1] = locs[base];
+        }
+        locs[base] = -1;
+
+        if (locs[base] > 3) { // scoring runner
+          runners[base].isScoring = true;
+        }
+      }
+    }
+    var isCalled = false;
+    var go = setInterval(() => {
+      goList.forEach(v => {
+        var { from, to } = v;
+        var { x: toX, y: toY } = this.getRunnersXY[to];
+        var dir = this.consts.bases[from].dir;
+        runners[from].x += dir[0] * speed;
+        runners[from].y += dir[1] * speed;
+        if(dir[0]*(runners[from].x - toX) > 0 || dir[1]*(runners[from].y - toY) > 0) {
+          runners[from].x = toX;
+          runners[from].y = toY;
+
+          if (!isCalled) {
+            isCalled = true;
+            clearInterval(go);
+            runners = this.getUpdateRunners(locs);
+          }
+        }
+        this.setState({ runners: runners });
+        if (isCalled && !locs.finalPos()) {
+          this.run(locs);
+        }
+      });
+    }, 10);
+  }
+
+  getUpdateRunners(locs) {
+    return this.getRunnersXY.map((runner, i) => {
+        runner.isOnBase = locs[i] > -1;
+        return runner;
+    });
+  }
+
   render() {
     var fielderComponent = this.props.isShowFielders
           ? <Fielders
@@ -162,9 +233,22 @@ export class Field extends React.Component {
       <Runners
         isShowRunners={this.props.isShowRunners}
         isShowBatter={this.props.isShowBatter}
-        runners={this.props.runners || this.getRunnersXY}
+        runners={this.state.runners}
         baseWidth={this.consts.baseWidth} />
       {fielderComponent}
     </g>);
   }
 }
+
+/* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
+Object.defineProperty(Array.prototype, 'finalPos', {
+  value: function() {
+    for (var i = 0; i < this.length; ++i) {
+      if (this[i] !== -1 && this[i] !== i) {
+        return false;
+      }
+    }
+    return true;
+  }
+});
+
