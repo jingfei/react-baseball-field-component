@@ -3,32 +3,26 @@ import PropTypes from 'prop-types';
 import { Runners, Fielders, GrassField, Diamond, InField, Lines, PitcherMound, Bases } from './FieldComponent';
 
 export class Field extends React.Component {
-  static defaultProps = {
-    isShowFielders: true,
-    isShowRunners: true,
-    isShowBatter: true,
-    color: {
-      mud: '#E41010',
-      grass: '#50A160',
-      stroke: '#ccc',
-      base: '#ccc'
-    }
-  };
-
-  static propTypes = {
-    color: PropTypes.object,
-    fielderUpdate: PropTypes.object,
-    runnersUpdate: PropTypes.array,
-    onStartDrag: PropTypes.func.isRequired,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-    isShowFielders: PropTypes.bool,
-    isShowRunners: PropTypes.bool,
-    isShowBatter: PropTypes.bool,
-  };
-
   constructor(props) {
     super(props);
+    this.consts = {
+      edge: 0,
+      pitcherR: 0,
+      pitcherDis: 0,
+      baseR: 0,
+      fieldEdge: 0,
+      baseWidth: 0,
+      sDiamondMove: 0,
+      sDiamondAway: 0,
+      lDiamondAway: 0,
+      centerX: 0,
+      centerY: 0,
+      bases: [ { x: 0, y: 0, dir: [1,-1], rotate: 0 },
+            { x: 0, y: 0, dir: [-1,-1], rotate: 135 },
+            { x: 0, y: 0, dir: [-1,1], rotate: 45 },
+            { x: 0, y: 0, dir: [1,1], rotate: 315 } ]
+    };
+
     this.init();
 
     this.state = { 
@@ -62,24 +56,6 @@ export class Field extends React.Component {
       }
     }
   }
-
-  consts = {
-    edge: 0,
-    pitcherR: 0,
-    pitcherDis: 0,
-    baseR: 0,
-    fieldEdge: 0,
-    baseWidth: 0,
-    sDiamondMove: 0,
-    sDiamondAway: 0,
-    lDiamondAway: 0,
-    centerX: 0,
-    centerY: 0,
-    bases: [ { x: 0, y: 0, dir: [1,-1], rotate: 0 },
-          { x: 0, y: 0, dir: [-1,-1], rotate: 135 },
-          { x: 0, y: 0, dir: [-1,1], rotate: 45 },
-          { x: 0, y: 0, dir: [1,1], rotate: 315 } ]
-  };
 
   init() {
     this.consts.edge = ( this.props.width > this.props.height ? this.props.height : this.props.width ) / 2.5;
@@ -252,3 +228,26 @@ Object.defineProperty(Array.prototype, 'finalPos', {
   }
 });
 
+Field.defaultProps = {
+  isShowFielders: true,
+  isShowRunners: true,
+  isShowBatter: true,
+  color: {
+    mud: '#E41010',
+    grass: '#50A160',
+    stroke: '#ccc',
+    base: '#ccc'
+  }
+};
+
+Field.propTypes = {
+  color: PropTypes.object,
+  fielderUpdate: PropTypes.object,
+  runnersUpdate: PropTypes.array,
+  onStartDrag: PropTypes.func.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  isShowFielders: PropTypes.bool,
+  isShowRunners: PropTypes.bool,
+  isShowBatter: PropTypes.bool,
+};

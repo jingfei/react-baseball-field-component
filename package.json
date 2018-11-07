@@ -1,18 +1,19 @@
 {
-  "name": "react-baseball-field",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
-    "react-scripts": "2.1.1"
-  },
+  "name": "baseball-field-component",
+  "version": "0.0.1",
+  "description": "An interactive baseball field by reactjs.",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --mode development",
+    "transpile": "babel src -d dist --copy-files",
+    "prepublishOnly": "npm run transpile",
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d examples/dist",
+    "publish-demo": "npm run build && npm run deploy"
   },
+  "license": "ISC",
+  "author": "jingfei",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -21,5 +22,25 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "peerDependencies": {
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^1.0.1",
+    "gh-pages": "^2.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "react": "^16.6.1",
+    "react-dom": "^16.6.1",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
 }
