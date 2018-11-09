@@ -129,9 +129,7 @@ BaseballField.propTypes = {
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,
-  /* runners: type size 4 array object 
-   * each object stands for each base from home to third
-   * object is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
+  /* each object in array is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
   runners: PropTypes.array,
   width: PropTypes.number,
   height: PropTypes.number,
