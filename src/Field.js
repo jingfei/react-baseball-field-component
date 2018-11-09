@@ -27,15 +27,11 @@ export class Field extends React.Component {
 
     this.state = { 
       fielders: this.getInitFielders,
-      runners: this.getRunnersXY,
-      hasRun: false
+      runners: this.initRunners
     };
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.runnersUpdate && !state.hasRun) {
-      props.runnersUpdate.forEach(runner => state.runners[runner.pos].isOnBase = true);
-    }
     if (props.fielderUpdate) {
       var update = props.fielderUpdate;
       if (update.x && update.y && update.pos) {
@@ -46,14 +42,20 @@ export class Field extends React.Component {
     return state;
   }
 
+  get initRunners() {
+    var runners = this.getRunnersXY;
+    this.props.runnersUpdate.forEach(runner => runners[runner.pos].isOnBase = true);
+    return runners;
+  }
+
   componentDidUpdate(prevProps) {
-    if (this.props.runnersUpdate) {
+    if (!this.props.runnersUpdate.equals(prevProps.runnersUpdate)) {
       var runningRunners = this.props.runnersUpdate.filter(runner => runner.runto);
-      if (runningRunners.length && !this.state.hasRun) {
+      if (runningRunners.length) {
         var locs = [-1, -1, -1, -1];
         runningRunners.forEach(runner => locs[runner.pos] = runner.runto ? runner.runto : runner.pos);
         this.run(locs);
-      }
+      } 
     }
   }
 
@@ -108,7 +110,6 @@ export class Field extends React.Component {
   }
 
   run(locs) {
-    this.setState({ hasRun: true });
     // TODO: adjust speed based on screen size
     var speed = 10;
     var runners = this.state.runners;
@@ -148,7 +149,7 @@ export class Field extends React.Component {
         this.setState({ runners: runners });
         if (isCalled && !locs.finalPos()) {
           this.run(locs);
-        }
+        } 
       });
     }, 10);
   }
@@ -217,14 +218,16 @@ export class Field extends React.Component {
 }
 
 /* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-Object.defineProperty(Array.prototype, 'finalPos', {
-  value: function() {
-    for (var i = 0; i < this.length; ++i) {
-      if (this[i] !== -1 && this[i] !== i) {
-        return false;
+Object.defineProperties(Array.prototype, {
+  finalPos: {
+    value: function() {
+      for (var i = 0; i < this.length; ++i) {
+        if (this[i] !== -1 && this[i] !== i) {
+          return false;
+        }
       }
+      return true;
     }
-    return true;
   }
 });
 

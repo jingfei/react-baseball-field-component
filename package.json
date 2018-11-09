@@ -1,6 +1,6 @@
 {
   "name": "baseball-field-component",
-  "version": "0.1.0",
+  "version": "0.0.9",
   "description": "An interactive baseball field by reactjs.",
   "main": "dist/index.js",
   "scripts": {
