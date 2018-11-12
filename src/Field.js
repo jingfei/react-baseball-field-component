@@ -65,10 +65,6 @@ export class Field extends React.Component {
         this.setState({ runners: runners });
       }
     }
-
-    if (this.props.fielderUpdate.isReset && !prevProps.fielderUpdate.isReset) {
-      this.setState({ fielders: this.getInitFielders });
-    }
   }
 
   init() {
@@ -109,6 +105,10 @@ export class Field extends React.Component {
       runners[this.props.runnerUpdate.pos].isOnBase = true;
     }
     return runners;
+  }
+
+  resetFielders() {
+    this.setState({ fielders: this.getInitFielders });
   }
 
   getFielder(pos) {
@@ -239,5 +239,5 @@ Field.propTypes = {
   height: PropTypes.number.isRequired,
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
-  isShowBatter: PropTypes.bool,
+  isShowBatter: PropTypes.bool
 };

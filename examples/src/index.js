@@ -14,23 +14,15 @@ class App extends React.Component {
     this.handleRun = this.handleRun.bind(this);
     this.handleToggleFielders = this.handleToggleFielders.bind(this);
     this.handleAddRunner = this.handleAddRunner.bind(this);
-    this.handleResetFielders = this.handleResetFielders.bind(this);
   }
 
   handleToggleFielders() {
     this.setState({ isShowFielders: !this.state.isShowFielders });
-    if (this.state.isShowFielders) {
-      this.setState({ isResetFielders: false });
-    }
   }
 
   handleAddRunner() {
     this.secondRunner = { pos: 0 };
     this.setState({ runnersUpdate: { pos: 0 } });
-  }
-
-  handleResetFielders() {
-    this.setState({ isResetFielders: true });
   }
 
   handleRun() {
@@ -47,14 +39,14 @@ class App extends React.Component {
   }
 
   render() {
+    var resetFieldersBtn = document.querySelector('#resetBtn');
     return (<div style={{height: '100%'}}>
         <button onClick={this.handleRun}>Run</button>
         <button onClick={this.handleAddRunner}>Add runner</button>
         <button onClick={this.handleToggleFielders}>Toggle Fielders</button>
-        <button onClick={this.handleResetFielders}>Reset Fielders</button>
         <BaseballField 
            isShowFielders={this.state.isShowFielders}
-           isResetFielders={this.state.isResetFielders}
+           resetFieldersBtn={resetFieldersBtn}
            onFieldersMove={this.handleFieldersMove}
            setRunner={this.state.runnersUpdate} />
         </div>);
