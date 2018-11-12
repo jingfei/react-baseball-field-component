@@ -18,17 +18,6 @@ export class BaseballField extends React.Component {
     this.setSize = this.setSize.bind(this);
     this.setElementRef = this.setElementRef.bind(this);
     this.setFieldRef = this.setFieldRef.bind(this);
-
-    this.runners = [];
-  }
-
-  componentDidUpdate(prepProps) {
-  }
-
-  componentDidMount() {
-    this.props.runners.forEach(runner => {
-        this.runners.push(Object.assign({}, runner));
-    });
   }
 
   setFieldRef(element) {
@@ -103,14 +92,6 @@ export class BaseballField extends React.Component {
   }
 
   render() {
-    // deep compare runners
-    if (!this.runners.equals(this.props.runners)) {
-      this.runners = []; 
-      this.props.runners.forEach(runner => {
-          this.runners.push(Object.assign({}, runner));
-      });
-    }
-
     if (!this.state.isReRendered) {
       return <div 
         style={{ width: '100%', height: '100%' }}
@@ -130,7 +111,7 @@ export class BaseballField extends React.Component {
           onStartDrag={this.handleStartDrag}
           isShowFielders={this.props.isShowFielders}
           fielderUpdate={this.state.fielderUpdate}
-          runnersUpdate={this.runners}
+          runnerUpdate={this.props.setRunner}
           width={this.width}
           height={this.height} />
       </svg>);
@@ -148,36 +129,11 @@ BaseballField.propTypes = {
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,
-  /* each object in array is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
-  runners: PropTypes.array,
+  /* setRunner object is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
+  setRunner: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
   // TODO: haven't started implement
   /* onFielderMove: callback function after fielder dragged */
   onFieldersMove: PropTypes.func
 };
-
-/* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-Object.defineProperties(Array.prototype, {
-  equals: {
-    value: function(ar): boolean {
-      if (!ar || ar.length !== this.length) {
-        return false;
-      }
-      for (var i=0; i<this.length; ++i) {
-        if (this[i] instanceof Array && ar[i] instanceof Array) {
-          if (!this[i].equals(ar[i])) {
-            return false;
-          }
-        } else if (this[i] instanceof Object && ar[i] instanceof Object) {
-          if (JSON.stringify(this[i]) !== JSON.stringify(ar[i])) {
-            return false;
-          }
-        } else if (this[i] !== ar[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-});

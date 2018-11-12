@@ -17,9 +17,9 @@ Three optional `boolean` type is provided with default `true` value:
 - isShowBatter (optional)
 
 ### Runners Update
-The optional `array` type containing `object` is provided.
-Each object is composed by `{ pos: *RUNNER_POSITION* (1~4), runto: *FINAL_POSITION* (1~x) }`
-- runners (optional)
+- setRunner (optional): this `object` type is composed by `{ pos: RUNNER_POSITION (1~4), runto (optional): FINAL_POSITION (1~x) }`
+  - pos: required, the runner's position
+  - runto: optional, runner will run if the property is provided
 
 ## Available Scripts
 

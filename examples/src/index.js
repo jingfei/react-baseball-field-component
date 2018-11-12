@@ -7,39 +7,44 @@ class App extends React.Component {
     super(props);
     this.state = {
       isShowFielders: true,
-      runnersUpdate: [
-        { pos: 0 },
-        { pos: 2 }
-      ]
+      runnersUpdate: { pos: 0 }
     };
+    this.firstRunner = { pos: 0 };
+    this.secondRunner = { };
     this.handleClick = this.handleClick.bind(this);
     this.handleClick2 = this.handleClick2.bind(this);
+    this.handleClick3 = this.handleClick3.bind(this);
   }
 
   handleClick2() {
     this.setState({ isShowFielders: !this.state.isShowFielders });
   }
 
+  handleClick3() {
+    this.secondRunner = { pos: 0 };
+    this.setState({ runnersUpdate: { pos: 0 } });
+  }
+
   handleClick() {
-    var runnersUpdate = this.state.runnersUpdate;
-    if (runnersUpdate[0].runto) {
-      runnersUpdate[0].pos = runnersUpdate[0].runto;
-      runnersUpdate[1].pos = runnersUpdate[1].runto;
+    var runnersUpdate = this.firstRunner;
+    if (runnersUpdate.runto) {
+      runnersUpdate.pos = runnersUpdate.runto;
     }
-    runnersUpdate[0].runto = runnersUpdate[0].pos + 1;
-    runnersUpdate[1].runto = runnersUpdate[1].pos + 1;
+    runnersUpdate.runto = runnersUpdate.pos + 1;
     this.setState({ runnersUpdate: runnersUpdate });
   }
 
   render() {
     return (<div style={{height: '100%'}}>
-        <button onClick={this.handleClick}>click me</button>
-        <button onClick={this.handleClick2}>click me again</button>
+        <button onClick={this.handleClick}>Run</button>
+        <button onClick={this.handleClick3}>Add runner</button>
+        <button onClick={this.handleClick2}>Toggle Fielders</button>
         <BaseballField 
            isShowFielders={this.state.isShowFielders}
-           runners={this.state.runnersUpdate} />
+           setRunner={this.state.runnersUpdate} />
         </div>);
   }
+
 }
 
 render(<App />, document.getElementById("root"));
