@@ -71,7 +71,10 @@ export class BaseballField extends React.Component {
 
   handleEndDrag(e) { 
     if (this.fielder) {
-      // TODO: add to fielding list
+      // TODO: current fielder's position is relative to screen size
+      if (this.props.onFieldersMove) {
+        this.props.onFieldersMove(this.fielder);
+      }
       this.fielder = null;
     }
   }
@@ -109,6 +112,7 @@ export class BaseballField extends React.Component {
         <Field 
           ref={this.setFieldRef}
           onStartDrag={this.handleStartDrag}
+          onFieldersMove={this.props.onFieldersMove}
           isShowFielders={this.props.isShowFielders}
           fielderUpdate={this.state.fielderUpdate}
           runnerUpdate={this.props.setRunner}
@@ -133,7 +137,10 @@ BaseballField.propTypes = {
   setRunner: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
-  // TODO: haven't started implement
-  /* onFielderMove: callback function after fielder dragged */
+  /* onFieldersMove: 
+   *   callback function after fielder dragged 
+   *   argument will be passed as a object 
+   *    { pos: FIELDER_POSITION (1~9), x: X_AXIS, y: Y_AXIS }
+   */
   onFieldersMove: PropTypes.func
 };

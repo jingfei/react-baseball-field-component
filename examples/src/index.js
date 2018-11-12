@@ -34,6 +34,10 @@ class App extends React.Component {
     this.setState({ runnersUpdate: runnersUpdate });
   }
 
+  handleFieldersMove(fielder) {
+    console.log(fielder);
+  }
+
   render() {
     return (<div style={{height: '100%'}}>
         <button onClick={this.handleClick}>Run</button>
@@ -41,6 +45,7 @@ class App extends React.Component {
         <button onClick={this.handleClick2}>Toggle Fielders</button>
         <BaseballField 
            isShowFielders={this.state.isShowFielders}
+           onFieldersMove={this.handleFieldersMove}
            setRunner={this.state.runnersUpdate} />
         </div>);
   }

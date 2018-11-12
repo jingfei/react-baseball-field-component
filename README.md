@@ -21,6 +21,9 @@ Three optional `boolean` type is provided with default `true` value:
   - pos: required, the runner's position
   - runto: optional, runner will run if the property is provided
 
+### Fielders Callback function after move
+- onFieldersMove (optional): `func` type, it will be called with an `object` type argument after any fielders is moved. The argument will be passed as `{ pos: FIELDER_POSITION (1~9), x: X_AXIS, y:Y_AXIS }`.
+
 ## Available Scripts
 
 In the project directory, you can run:
