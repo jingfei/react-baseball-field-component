@@ -13,6 +13,7 @@ It will be fit into the container size if not provided.
 ### Display Fielders and Runners
 Three optional `boolean` type is provided with default `true` value:
 - isShowFielders (optional)
+- isResetFielders (optional): Fielders' position will be reset only when the value is toggle from (`false` or `null`) to `true`.
 - isShowRunners (optional)
 - isShowBatter (optional)
 

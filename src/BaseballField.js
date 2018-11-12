@@ -20,6 +20,12 @@ export class BaseballField extends React.Component {
     this.setFieldRef = this.setFieldRef.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.isResetFielders && !prevProps.isResetFielders) {
+      this.setState({ fielderUpdate: { isReset: true } });
+    }
+  }
+
   setFieldRef(element) {
     if (element) {
       this.fieldRef = element;
@@ -125,12 +131,14 @@ export class BaseballField extends React.Component {
 
 BaseballField.defaultProps = {
   isShowFielders: true,
+  isResetFielders: false,
   isShowRunners: true,
   isShowBatter: true
 };
 
 BaseballField.propTypes = {
   isShowFielders: PropTypes.bool,
+  isResetFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,
   /* setRunner object is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
