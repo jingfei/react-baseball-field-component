@@ -49,7 +49,7 @@ export const Runners = (props) =>  {
   var runners = props.runners
     .filter((runner, i) => runner.isOnBase 
         && (i ? props.isShowRunners : props.isShowBatter))
-    .map((runner, i) => <Runner key={"runner-"+i} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} />);
+    .map(runner => <Runner id={"runner-"+runner.pos} key={"runner-"+runner.pos} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} onStartDrag={props.onStartDrag} />);
   return <g>{runners}</g>;
 };
 Runners.defaultProps = { 
@@ -60,15 +60,55 @@ Runners.propTypes = {
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,
   runners: PropTypes.array.isRequired,
-  baseWidth: PropTypes.number.isRequired
+  baseWidth: PropTypes.number.isRequired,
+  onStartDrag: PropTypes.func.isRequired
 };
 
-const Runner = (props) => <rect x={props.x} y={props.y} fill={props.fill} width={props.baseWidth * 4} height={props.baseWidth * 4} />;
+const Runner = (props) => <rect id={props.id} 
+      x={props.x} y={props.y} fill={props.fill} 
+      width={props.baseWidth * 4} height={props.baseWidth * 4}
+      onMouseDown={props.onStartDrag}
+      onTouchStart={props.onStartDrag} />;
 Runner.propTypes = { 
-  baseWidth: PropTypes.number,
+  id: PropTypes.string.isRequired,
+  baseWidth: PropTypes.number.isRequired,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,
   fill: PropTypes.string.isRequired,
+  onStartDrag: PropTypes.func.isRequired
+};
+
+var changeOpacity = (e) => e.target.style.opacity = .3;
+var revertOpacity = (e) => e.target.style.opacity = 1;
+
+export const RunnerOptions = (props) => {
+  var consts = {
+    xL: props.base.x - props.baseWidth * 7,
+    xR: props.base.x + props.baseWidth * 3,
+    y: props.base.y - props.baseWidth * 5,
+    w: props.baseWidth * 4,
+    h: props.baseWidth * 10,
+    wRunner: props.baseWidth * 4,
+    styleR: { opacity: 1 },
+    styleL: { opacity: 1 }
+  };
+  var runnerPos = props.runnerPos;
+  if (runnerPos && (runnerPos.y + consts.wRunner) >= consts.y && runnerPos.y <= consts.y + consts.h) {
+    if ( (runnerPos.x + consts.wRunner) >= consts.xL && runnerPos.x <= consts.xL + consts.w) {
+      consts.styleL.opacity = .3;
+    } else if ( (runnerPos.x + consts.wRunner) >= consts.xR && runnerPos.x <= consts.xR + consts.w) {
+      consts.styleR.opacity = .3;
+    }
+  }
+  return (<g>
+    <rect style={consts.styleR} key="text-right" x={consts.xR} y={consts.y} width={consts.w} height={consts.h} fill="red" />
+    <rect style={consts.styleL} key="text-left" x={consts.xL} y={consts.y} width={consts.w} height={consts.h} fill="green" />
+ </g>);
+};
+RunnerOptions.propTypes = { 
+  runnerPos: PropTypes.object,
+  base: PropTypes.object.isRequired,
+  baseWidth: PropTypes.number.isRequired
 };
 
 export const Bases = (props) => {

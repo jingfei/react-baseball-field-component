@@ -40,7 +40,7 @@ class App extends React.Component {
 
   render() {
     var resetFieldersBtn = document.querySelector('#resetBtn');
-    return (<div style={{height: '100%'}}>
+    return (<div style={{height: '90%'}}>
         <button onClick={this.handleRun}>Run</button>
         <button onClick={this.handleAddRunner}>Add runner</button>
         <button onClick={this.handleToggleFielders}>Toggle Fielders</button>

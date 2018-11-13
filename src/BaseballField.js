@@ -8,6 +8,8 @@ export class BaseballField extends React.Component {
 
     this.state = {
       isReRendered: this.props.width && this.props.height,
+      showRunnersOption: 0,
+      runnerUpdate: {},
       fielderUpdate: {}
     };
 
@@ -54,6 +56,10 @@ export class BaseballField extends React.Component {
     this.setState({ isReRendered: false });
   }
 
+  noscroll() {
+    window.scrollTo(0,0);
+  }
+
   handleDrag(e) { 
     if (this.fielder) {
       e.preventDefault();
@@ -61,6 +67,12 @@ export class BaseballField extends React.Component {
       this.fielder.x = dragX - this.dragOffset.x;
       this.fielder.y = dragY - this.dragOffset.y;
       this.setState({fielderUpdate: this.fielder});
+    } else if (this.runner) {
+      e.preventDefault();
+      var { x: dragX, y: dragY } = this.getMousePosition(e);
+      this.runner.x = dragX - this.dragOffset.x;
+      this.runner.y = dragY - this.dragOffset.y;
+      this.setState({runnerUpdate: this.runner});
     }
   }
 
@@ -71,10 +83,17 @@ export class BaseballField extends React.Component {
       return;
     }
     var pos = parseInt(idArray[1]);
-    this.fielder = this.fieldRef.getFielder(pos);
     this.dragOffset = this.getMousePosition(e);
-    this.dragOffset.x -= this.fielder.x;
-    this.dragOffset.y -= this.fielder.y;
+    if (idArray[0] === 'runner') {
+      this.runner = this.fieldRef.getRunnersXY[pos];
+      this.dragOffset.x -= this.runner.x;
+      this.dragOffset.y -= this.runner.y;
+      this.setState({ showRunnersOption: pos });
+    } else if (idArray[0] === 'fielder') {
+      this.fielder = this.fieldRef.getFielder(pos);
+      this.dragOffset.x -= this.fielder.x;
+      this.dragOffset.y -= this.fielder.y;
+    }
   }
 
   handleEndDrag(e) { 
@@ -84,6 +103,10 @@ export class BaseballField extends React.Component {
         this.props.onFieldersMove(this.fielder);
       }
       this.fielder = null;
+    } else if (this.runner) {
+      this.runner = this.fieldRef.getRunnersXY[this.runner.pos];
+      this.setState({ showRunnersOption: 0 });
+      this.runner = null;
     }
   }
 
@@ -110,7 +133,7 @@ export class BaseballField extends React.Component {
     } else {
       return (<svg
         ref={this.setElementRef}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', touchAction: 'none' }}
         onMouseMove={this.handleDrag}
         onMouseUp={this.handleEndDrag}
         onMouseLeave={this.handleEndDrag}
@@ -124,7 +147,9 @@ export class BaseballField extends React.Component {
           isShowFielders={this.props.isShowFielders}
           resetFieldersBtn={this.props.resetFieldersBtn}
           fielderUpdate={this.state.fielderUpdate}
-          runnerUpdate={this.props.setRunner}
+          setRunner={this.props.setRunner}
+          runnerUpdate={this.state.runnerUpdate}
+          showRunnersOption={this.state.showRunnersOption}
           width={this.width}
           height={this.height} />
       </svg>);

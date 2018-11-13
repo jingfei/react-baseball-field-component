@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Runners, Fielders, GrassField, Diamond, InField, Lines, PitcherMound, Bases } from './FieldComponent';
+import { Runners, Fielders, GrassField, Diamond, InField, Lines, PitcherMound, Bases, RunnerOptions } from './FieldComponent';
 
 export class Field extends React.Component {
   constructor(props) {
@@ -28,20 +28,28 @@ export class Field extends React.Component {
     this.state = { 
       fielders: this.getInitFielders,
       runners: this.getInitRunners,
-      prevRunnerUpdate: {},
-      runnerUpdate: {}
+      prevSetRunner: {},
+      setRunner: {}
     };
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.runnerUpdate) {
-      var runnerUpdate = props.runnerUpdate;
-      var prevRunnerUpdate = state.prevRunnerUpdate;
-      if (prevRunnerUpdate.pos === runnerUpdate.pos && prevRunnerUpdate.runto === runnerUpdate.runto) {
-        state.runnerUpdate = {};
+    if (props.setRunner) {
+      var setRunner = props.setRunner;
+      var prevSetRunner = state.prevSetRunner;
+      if (prevSetRunner.pos === setRunner.pos && prevSetRunner.runto === setRunner.runto) {
+        state.setRunner = {};
       } else {
-        state.prevRunnerUpdate = Object.assign({}, runnerUpdate);
-        state.runnerUpdate = Object.assign({}, runnerUpdate);
+        state.prevSetRunner = Object.assign({}, setRunner);
+        state.setRunner = Object.assign({}, setRunner);
+      }
+    }
+
+    if (props.showRunnersOption && props.runnerUpdate) {
+      var runnerUpdate = props.runnerUpdate;
+      if (runnerUpdate.x && runnerUpdate.y) {
+        state.runners[runnerUpdate.pos].x = runnerUpdate.x;
+        state.runners[runnerUpdate.pos].y = runnerUpdate.y;
       }
     }
 
@@ -56,14 +64,22 @@ export class Field extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.runnerUpdate.hasOwnProperty('pos')) {
-      if (this.state.runnerUpdate.runto) {
-        this.run(this.state.runnerUpdate.pos, this.state.runnerUpdate.runto - this.state.runnerUpdate.pos);
+    if (this.state.setRunner.hasOwnProperty('pos')) {
+      if (this.state.setRunner.runto) {
+        this.run(this.state.setRunner.pos, this.state.setRunner.runto - this.state.setRunner.pos);
       } else {
+        console.log('setRunner');
         var runners = this.state.runners;
-        runners[this.state.runnerUpdate.pos].isOnBase = true;
+        runners[this.state.setRunner.pos].isOnBase = true;
         this.setState({ runners: runners });
       }
+    }
+    if (!this.props.showRunnersOption && prevProps.showRunnersOption !== this.props.showRunnersOption) {
+      var base = prevProps.showRunnersOption;
+      var runners = this.state.runners;
+      runners[base] = this.getRunnersXY[base];
+      runners[base].isOnBase = true;
+      this.setState({ runners: runners });
     }
   }
 
@@ -93,16 +109,17 @@ export class Field extends React.Component {
   }
 
   get getRunnersXY() {
-    return this.consts.bases.map(base => {
-      return { x: base.x - this.consts.baseWidth * 2,
+    return this.consts.bases.map((base, i) => {
+      return { pos: i,
+               x: base.x - this.consts.baseWidth * 2,
                y: base.y - this.consts.baseWidth * 2 };
     });
   }
 
   get getInitRunners() {
     var runners = this.getRunnersXY;
-    if (this.props.runnerUpdate) {
-      runners[this.props.runnerUpdate.pos].isOnBase = true;
+    if (this.props.setRunner) {
+      runners[this.props.setRunner.pos].isOnBase = true;
     }
     return runners;
   }
@@ -167,7 +184,12 @@ export class Field extends React.Component {
           ? <Fielders
               fielders={this.state.fielders}
               onStartDrag={this.props.onStartDrag} /> : '';
-
+    var runnerOptionsComponent = this.props.showRunnersOption
+          ? [this.props.showRunnersOption, this.props.showRunnersOption + 1].map(option => <RunnerOptions key={'runnerOptions'+option}
+              runnerPos={this.props.runnerUpdate}
+              base={this.consts.bases[option > 3 ? 0 : option]}
+              baseWidth={this.consts.baseWidth}
+              onStartDrag={this.props.onStartDrag} />) : '';
     return (<g>
       <GrassField 
         grassColor={this.props.color.grass}
@@ -208,11 +230,13 @@ export class Field extends React.Component {
         centerY={this.consts.centerY}
         pitcherDis={this.consts.pitcherDis}
         pitcherR={this.consts.pitcherR} />
+      {runnerOptionsComponent}
       <Runners
         isShowRunners={this.props.isShowRunners}
         isShowBatter={this.props.isShowBatter}
         runners={this.state.runners}
-        baseWidth={this.consts.baseWidth} />
+        baseWidth={this.consts.baseWidth} 
+        onStartDrag={this.props.onStartDrag} />
       {fielderComponent}
     </g>);
   }
@@ -234,10 +258,12 @@ Field.propTypes = {
   color: PropTypes.object,
   fielderUpdate: PropTypes.object,
   runnerUpdate: PropTypes.object,
+  setRunner: PropTypes.object,
   onStartDrag: PropTypes.func.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
-  isShowBatter: PropTypes.bool
+  isShowBatter: PropTypes.bool,
+  showRunnersOption: PropTypes.number
 };
