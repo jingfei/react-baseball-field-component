@@ -85,25 +85,52 @@ export const RunnerOptions = (props) => {
   var consts = {
     xL: props.base.x - props.baseWidth * 7,
     xR: props.base.x + props.baseWidth * 3,
-    y: props.base.y - props.baseWidth * 5,
-    w: props.baseWidth * 4,
-    h: props.baseWidth * 10,
+    yT: props.base.y - props.baseWidth * 7,
+    yB: props.base.y + props.baseWidth * 3,
+    edgeS: props.baseWidth * 4,
+    edgeL: props.baseWidth * 10,
     wRunner: props.baseWidth * 4,
-    styleR: { opacity: 1 },
-    styleL: { opacity: 1 }
+    styleR: { opacity: 1, fill: '#CC0027' },
+    styleL: { opacity: 1, fill: '#008000' }
   };
+  var rectPos = [
+    { name: "bar-right", value: "out", 
+      x: consts.xR + consts.edgeS, y: consts.yT + consts.edgeS, rotate: 90,
+      xLT: consts.xR, yLT: consts.yT + consts.edgeS, 
+      h: consts.edgeL, w: consts.edgeS },
+    { name: "bar-bottom", value: "out", 
+      x: consts.xR + consts.edgeS, y: consts.yB + consts.edgeS, rotate: 180,
+      xLT: consts.xL + consts.edgeS, yLT: consts.yB, 
+      w: consts.edgeL, h: consts.edgeS },
+    { name: "bar-left", value: "safe", 
+      x: consts.xL, y: consts.yB, rotate: 270,
+      xLT: consts.xL, yLT: consts.yT,
+      h: consts.edgeL, w: consts.edgeS },
+    { name: "bar-top", value: "safe", 
+      xLT: consts.xL, yLT: consts.yT, rotate: 0,
+      x: consts.xL, y: consts.yT, 
+      w: consts.edgeL, h: consts.edgeS }
+  ];
+
   var runnerPos = props.runnerPos;
-  if (runnerPos && (runnerPos.y + consts.wRunner) >= consts.y && runnerPos.y <= consts.y + consts.h) {
-    if ( (runnerPos.x + consts.wRunner) >= consts.xL && runnerPos.x <= consts.xL + consts.w) {
-      consts.styleL.opacity = .3;
-    } else if ( (runnerPos.x + consts.wRunner) >= consts.xR && runnerPos.x <= consts.xR + consts.w) {
-      consts.styleR.opacity = .3;
-    }
+  if (runnerPos) {
+    rectPos.forEach(pos => {
+      if (runnerPos.x + consts.wRunner >= pos.xLT && runnerPos.x <= pos.xLT + pos.w
+        && runnerPos.y + consts.wRunner >= pos.yLT && runnerPos.y <= pos.yLT + pos.h) {
+          var target = pos.value === "safe" ? consts.styleL : consts.styleR;
+          target.opacity = 0.3;
+      }
+    });
   }
-  return (<g>
-    <rect style={consts.styleR} key="text-right" x={consts.xR} y={consts.y} width={consts.w} height={consts.h} fill="red" />
-    <rect style={consts.styleL} key="text-left" x={consts.xL} y={consts.y} width={consts.w} height={consts.h} fill="green" />
- </g>);
+
+  var elements = rectPos.map(pos => (<g key={pos.name}
+          transform={`rotate(${pos.rotate}, ${pos.x}, ${pos.y})`}>
+        <rect style={pos.value === "safe" ? consts.styleL : consts.styleR} 
+          x={pos.x} y={pos.y} width={consts.edgeL} height={consts.edgeS} />
+        <text x={pos.x + 5} y={pos.y + 10} width={consts.edgeS} height={consts.edgeL}>{pos.value.toUpperCase()}</text>
+      </g>));
+
+  return <g>{elements}</g>;
 };
 RunnerOptions.propTypes = { 
   runnerPos: PropTypes.object,
