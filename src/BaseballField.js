@@ -53,6 +53,7 @@ export class BaseballField extends React.Component {
   }
 
   handleResize() {
+    // FIXME: resize doesn't keep fielders & runners status
     this.setState({ isReRendered: false });
   }
 
@@ -150,6 +151,7 @@ export class BaseballField extends React.Component {
           setRunner={this.props.setRunner}
           runnerUpdate={this.state.runnerUpdate}
           showRunnersOption={this.state.showRunnersOption}
+          fieldersNameList={this.props.fieldersNameList}
           width={this.width}
           height={this.height} />
       </svg>);
@@ -167,10 +169,13 @@ BaseballField.propTypes = {
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,
-  /* setRunner object is composed by { pos: RUNNER_POSITION (0~4), runto: FINAL_POSITION (1~x) } */
+  /* setRunner object is composed by { pos: RUNNER_POSITION (0~4), runto (optional): FINAL_POSITION (1~x), name (optional): string } */
   setRunner: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
+  /* fieldersNameList: string array with length 9, runnersNameList: string array with max length 4 */
+  fieldersNameList: PropTypes.array,
+  runnersNameList: PropTypes.array,
   /* onFieldersMove: 
    *   callback function after fielder dragged 
    *   argument will be passed as a object 

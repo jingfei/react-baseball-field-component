@@ -5,13 +5,18 @@ import { BaseballField } from '../../src/BaseballField';
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.firstRunner = { pos: 0, name: "Posada" };
+    this.secondRunner = { pos: 0, name: "Jeter" };
+    this.fieldersNameList = ["Jakie", "Brock", "Steve", "Rafael", "Blake", "Brandon", "Christian", "Sam", "Tzu-Wei"];
+
     this.state = {
       isShowFielders: true,
-      runnersUpdate: { pos: 0 }
+      runnersUpdate: this.firstRunner,
+      isRunnerAdded: false
     };
-    this.firstRunner = { pos: 0 };
-    this.secondRunner = { };
-    this.handleRun = this.handleRun.bind(this);
+
+    this.handleRun1 = this.handleRun.bind(this, this.firstRunner);
+    this.handleRun2 = this.handleRun.bind(this, this.secondRunner);
     this.handleToggleFielders = this.handleToggleFielders.bind(this);
     this.handleAddRunner = this.handleAddRunner.bind(this);
   }
@@ -21,12 +26,12 @@ class App extends React.Component {
   }
 
   handleAddRunner() {
-    this.secondRunner = { pos: 0 };
-    this.setState({ runnersUpdate: { pos: 0 } });
+    this.setState({ runnersUpdate: this.secondRunner, isRunnerAdded: true });
   }
 
-  handleRun() {
-    var runnersUpdate = this.firstRunner;
+  handleRun(runner) {
+    var runnersUpdate = runner;
+    console.log(runner);
     if (runnersUpdate.runto) {
       runnersUpdate.pos = runnersUpdate.runto;
     }
@@ -41,17 +46,18 @@ class App extends React.Component {
   render() {
     var resetFieldersBtn = document.querySelector('#resetBtn');
     return (<div style={{height: '90%'}}>
-        <button onClick={this.handleRun}>Run</button>
-        <button onClick={this.handleAddRunner}>Add runner</button>
+        <button onClick={this.handleRun1}>Run (Posada)</button>
+        {this.state.isRunnerAdded ? <button onClick={this.handleRun2}>Run (Jeter)</button> : ''}
+        {this.state.isRunnerAdded ? '' : <button onClick={this.handleAddRunner}>Add runner</button>}
         <button onClick={this.handleToggleFielders}>Toggle Fielders</button>
         <BaseballField 
            isShowFielders={this.state.isShowFielders}
            resetFieldersBtn={resetFieldersBtn}
            onFieldersMove={this.handleFieldersMove}
-           setRunner={this.state.runnersUpdate} />
+           setRunner={this.state.runnersUpdate} 
+           fieldersNameList={this.fieldersNameList} />
         </div>);
   }
-
 }
 
 render(<App />, document.getElementById("root"));

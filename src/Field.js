@@ -68,9 +68,9 @@ export class Field extends React.Component {
       if (this.state.setRunner.runto) {
         this.run(this.state.setRunner.pos, this.state.setRunner.runto - this.state.setRunner.pos);
       } else {
-        console.log('setRunner');
         var runners = this.state.runners;
         runners[this.state.setRunner.pos].isOnBase = true;
+        runners[this.state.setRunner.pos].name = this.state.setRunner.name;
         this.setState({ runners: runners });
       }
     }
@@ -120,6 +120,7 @@ export class Field extends React.Component {
     var runners = this.getRunnersXY;
     if (this.props.setRunner) {
       runners[this.props.setRunner.pos].isOnBase = true;
+      runners[this.props.setRunner.pos].name  = this.props.setRunner.name;
     }
     return runners;
   }
@@ -143,6 +144,9 @@ export class Field extends React.Component {
     fielders.push({ pos: 7, x: this.consts.centerX - this.consts.edge, y: this.consts.centerY - this.consts.fieldEdge * 2.5 });
     fielders.push({ pos: 8, x: this.consts.centerX - 9, y: this.consts.centerY  - this.consts.fieldEdge * 3 });
     fielders.push({ pos: 9, x: this.consts.centerX + this.consts.edge - 9, y: this.consts.centerY - this.consts.fieldEdge * 2.5 });
+    if (this.props.fieldersNameList) {
+      this.props.fieldersNameList.forEach((name, i) => fielders[i + 1].name = name);
+    }
     return fielders;
   }
 
@@ -167,9 +171,11 @@ export class Field extends React.Component {
         runners[base].y = toY;
 
         clearInterval(go);
+        var name = runners[base].name;
         runners[base] = this.getRunnersXY[base];
         runners[base].isOnBase = false;
         runners[runto].isOnBase = true;
+        runners[runto].name = name;
         if (step > 1) {
           this.setState({ runners: runners });
           this.run(base + 1, step - 1);
@@ -262,6 +268,9 @@ Field.propTypes = {
   onStartDrag: PropTypes.func.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
+  /* fieldersNameList: string array with length 9, runnersNameList: string array with max length 4 */
+  fieldersNameList: PropTypes.array,
+  runnersNameList: PropTypes.array,
   isShowFielders: PropTypes.bool,
   isShowRunners: PropTypes.bool,
   isShowBatter: PropTypes.bool,

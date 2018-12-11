@@ -49,7 +49,7 @@ export const Runners = (props) =>  {
   var runners = props.runners
     .filter((runner, i) => runner.isOnBase 
         && (i ? props.isShowRunners : props.isShowBatter))
-    .map(runner => <Runner id={"runner-"+runner.pos} key={"runner-"+runner.pos} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} onStartDrag={props.onStartDrag} />);
+    .map(runner => <Runner id={"runner-"+runner.pos} key={"runner-"+runner.pos} baseWidth={props.baseWidth} x={runner.x} y={runner.y} fill={runner.isScoring ? 'orange' : 'rgba(0,0,255,.9)'} onStartDrag={props.onStartDrag} text={runner.name} />);
   return <g>{runners}</g>;
 };
 Runners.defaultProps = { 
@@ -64,18 +64,22 @@ Runners.propTypes = {
   onStartDrag: PropTypes.func.isRequired
 };
 
-const Runner = (props) => <rect id={props.id} 
+const Runner = (props) => (<g>
+    <rect id={props.id} 
       x={props.x} y={props.y} fill={props.fill} 
       width={props.baseWidth * 4} height={props.baseWidth * 4}
       onMouseDown={props.onStartDrag}
-      onTouchStart={props.onStartDrag} />;
+      onTouchStart={props.onStartDrag} />
+    <text textAnchor="middle" x={props.x + props.baseWidth * 2} y={props.y + props.baseWidth * 2.5} fill="white">{props.text}</text>
+  </g>);
 Runner.propTypes = { 
   id: PropTypes.string.isRequired,
   baseWidth: PropTypes.number.isRequired,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,
   fill: PropTypes.string.isRequired,
-  onStartDrag: PropTypes.func.isRequired
+  onStartDrag: PropTypes.func.isRequired,
+  text: PropTypes.string
 };
 
 var changeOpacity = (e) => e.target.style.opacity = .3;
@@ -194,7 +198,7 @@ export const Fielders = (props) => {
     .filter(fielder => fielder.pos)
     .map(fielder => <Fielder 
         key={"fielder-" + fielder.pos} id={"fielder-" + fielder.pos}
-        x={fielder.x} y={fielder.y} text={fielder.pos.toString()} 
+        x={fielder.x} y={fielder.y} text={fielder.name || fielder.pos.toString()} 
         onStartDrag={props.onStartDrag} />);
   return <g>{fielders}</g>;
 };
@@ -209,7 +213,7 @@ const Fielder = (props) => (<g
       onMouseDown={props.onStartDrag}
       onTouchStart={props.onStartDrag} >
     <Glove x={props.x} y={props.y} />
-    <text x={props.x + 5} y={props.y + 20} fill="white">{props.text}</text>
+    <text textAnchor="middle" x={props.x + 10} y={props.y + 20} fill="white">{props.text}</text>
   </g>);
 Fielder.propTypes = {
   id: PropTypes.string.isRequired,
